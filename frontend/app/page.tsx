@@ -15,9 +15,6 @@ type PredictResponse = {
   version?: string;
 };
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
-
 function scoreTone(score: number) {
   if (score >= 750) return "good";
   if (score >= 650) return "warn";
@@ -104,7 +101,7 @@ export default function Page() {
     setLoading(true);
 
     try {
-      console.log("Fetching from:", `${API_BASE_URL}/api/predict`);
+      console.log("Fetching from:", "/api/predict");
 
       // Resolve final numeric values for each feature (manual override takes precedence when valid).
       const parsedExt = extOverride.trim() === "" ? NaN : Number(extOverride);
@@ -137,7 +134,7 @@ export default function Page() {
       const appValue = Number.isFinite(appFromOverride)
         ? appFromOverride
         : appFromMapped;
-      const res = await fetch(`${API_BASE_URL}/api/predict`, {
+      const res = await fetch("/api/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
