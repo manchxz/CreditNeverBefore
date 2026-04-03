@@ -1,0 +1,16 @@
+.venv/
+venv/
+node_modules/
+.next/
+dist/
+build/
+
+# Environment files
+.env
+.env.*
+
+# ML / generated data
+*.csv
+data/*.csv
+public/*.csv
+
