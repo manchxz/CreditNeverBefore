@@ -101,7 +101,10 @@ export default function Page() {
     setLoading(true);
 
     try {
-      console.log("Fetching from:", "/api/predict");
+      const endpoint = process.env.NEXT_PUBLIC_API_BASE_URL
+        ? `${process.env.NEXT_PUBLIC_API_BASE_URL.replace(/\/$/, "")}/api/predict`
+        : "/api/predict";
+      console.log("Fetching from:", endpoint);
 
       // Resolve final numeric values for each feature (manual override takes precedence when valid).
       const parsedExt = extOverride.trim() === "" ? NaN : Number(extOverride);
@@ -134,7 +137,7 @@ export default function Page() {
       const appValue = Number.isFinite(appFromOverride)
         ? appFromOverride
         : appFromMapped;
-      const res = await fetch("/api/predict", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
