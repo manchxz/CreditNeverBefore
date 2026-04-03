@@ -101,9 +101,13 @@ export default function Page() {
     setLoading(true);
 
     try {
+      const host = typeof window !== "undefined" ? window.location.hostname : "";
+      const isLocalhost = host === "localhost" || host === "127.0.0.1";
       const endpoint = process.env.NEXT_PUBLIC_API_BASE_URL
         ? `${process.env.NEXT_PUBLIC_API_BASE_URL.replace(/\/$/, "")}/api/predict`
-        : "/api/predict";
+        : isLocalhost
+          ? "http://localhost:5000/api/predict"
+          : "/api/predict";
       console.log("Fetching from:", endpoint);
 
       // Resolve final numeric values for each feature (manual override takes precedence when valid).
