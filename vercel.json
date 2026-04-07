@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/**/*.py": {
+      "excludeFiles": "**/tests/**, **/docs/**, **/__pycache__/**, **/*.pyc"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/:path*",

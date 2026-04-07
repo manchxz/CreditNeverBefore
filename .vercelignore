@@ -1,0 +1,28 @@
+# Vercel Deployment Exclusions
+# Ignore local development artifacts and large dependencies
+
+# Python envs
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Node modules & build outputs
+node_modules/
+.next/
+dist/
+out/
+
+# Data and training scripts (large and unnecessary for production)
+data/
+*.csv
+train_model.py
+prepare_cnb_data.py
+train_cnb_injected.py
+
+# Unused model formats
+cnb_model.json
+preprocessor.joblib
+
+# OS files
+.DS_Store
