@@ -75,6 +75,7 @@ function mapCibilToExternalTrust(cibil: number): number {
 
 export default function Page() {
   // Layman UI inputs. These are mapped to the technical model keys inside `handlePredict()`.
+  const [age, setAge] = useState<number>(28);
   const [cibilScore, setCibilScore] = useState<number>(750);
   const [upiHabit, setUpiHabit] = useState<UpiOption>("6-10");
   const [paymentTrack, setPaymentTrack] = useState<PaymentOption>("on");
@@ -85,6 +86,9 @@ export default function Page() {
   const [upiOverride, setUpiOverride] = useState<string>("");
   const [payOverride, setPayOverride] = useState<string>("");
   const [appOverride, setAppOverride] = useState<string>("");
+
+  // Is the user legally eligible?
+  const isUnderAge = age < 18;
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -147,6 +151,7 @@ export default function Page() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           // Keep model keys exactly as expected.
+          AGE: age,
           EXT_SOURCE_1: extValue,
           UPI_VELOCITY: upiValue,
           BILL_PAY_CONSISTENCY: payValue,
@@ -211,6 +216,40 @@ export default function Page() {
             </div>
 
             <div className="space-y-4">
+
+              {/* Age */}
+              <div>
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="text-sm font-medium">Your Age</span>
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 tabular-nums">
+                    {age} yrs
+                  </span>
+                </div>
+                <div className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  Must be 18 or older to apply for credit.
+                </div>
+                <input
+                  type="range"
+                  min={10}
+                  max={80}
+                  step={1}
+                  value={age}
+                  onChange={(e) => setAge(Number(e.target.value))}
+                  className="w-full"
+                />
+                <div className="mt-1 flex justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
+                  <span>10</span>
+                  <span>80</span>
+                </div>
+
+                {isUnderAge && (
+                  <div className="mt-3 flex items-start gap-2 rounded-xl bg-rose-500/10 px-3 py-3 text-sm font-medium text-rose-600 ring-1 ring-rose-500/20 dark:text-rose-400">
+                    <span className="mt-0.5 shrink-0 text-base">🚫</span>
+                    <span>Must be 18 years or older to use Credit facilities.</span>
+                  </div>
+                )}
+              </div>
+
               <div>
                 <div className="mb-1 flex items-center justify-between">
                   <span className="text-sm font-medium">Existing CIBIL Score</span>
@@ -344,7 +383,7 @@ export default function Page() {
               <button
                 type="button"
                 onClick={handlePredict}
-                disabled={loading}
+                disabled={loading || isUnderAge}
                 className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
