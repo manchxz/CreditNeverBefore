@@ -37,13 +37,17 @@ def generate_synthetic_data(n_samples: int = 10000) -> pd.DataFrame:
     bill = rng.uniform(0, 1, n_samples)
     app = rng.uniform(0, 300, n_samples)
     
-    # Heuristic: younger, lower EXT_1, lower UPI/Bill/App usage = higher risk
+    # Risk weights — MUST sum to 1.0
+    # BILL_PAY_CONSISTENCY is the strongest driver (35%).
+    # APP_USAGE_DAYS now has meaningful pull (15%).
+    # EXT_SOURCE_1 (CIBIL) still important but not dominant (30%).
+    # UPI_VELOCITY moderate (15%). AGE minimal (5%).
     risk = (
-        (70 - age) / 50 * 0.15 +
-        (1 - ext_1) * 0.45 +
-        (1 - upi) * 0.2 +
-        (1 - bill) * 0.15 +
-        (1 - app/300) * 0.05
+        (70 - age) / 50 * 0.05 +       # AGE:                  5%
+        (1 - ext_1) * 0.30 +            # EXT_SOURCE_1 (CIBIL): 30%
+        (1 - upi) * 0.15 +              # UPI_VELOCITY:         15%
+        (1 - bill) * 0.35 +             # BILL_PAY_CONSISTENCY: 35%  ← primary driver
+        (1 - app/300) * 0.15            # APP_USAGE_DAYS:       15%
     )
     
     # 10% base noise
