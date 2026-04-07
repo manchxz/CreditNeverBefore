@@ -19,8 +19,7 @@ from xgboost import XGBClassifier
 
 HERE = Path(__file__).resolve().parent
 DATA_CSV = HERE / "data" / "cnb_training_data.csv"
-MODEL_JOBLIB = HERE / "cnb_model.joblib"
-
+MODEL_JSON = HERE / "cnb_model_injected.json"
 FEATURES = [
     "AGE",
     "EXT_SOURCE_1",
@@ -76,8 +75,8 @@ def main() -> None:
     print("\nClassification Report:")
     print(classification_report(y_test, y_pred))
 
-    joblib.dump(model, MODEL_JOBLIB)
-    print(f"\nModel saved as {MODEL_JOBLIB}")
+    model.get_booster().save_model(MODEL_JSON)
+    print(f"\nModel saved as {MODEL_JSON}")
 
     explainer = shap.TreeExplainer(model)
     sample = X_test[: min(500, len(X_test))]
