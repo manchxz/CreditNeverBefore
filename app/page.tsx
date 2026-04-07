@@ -52,24 +52,25 @@ function mapPaymentReliability(opt: PaymentOption): number {
 }
 
 function mapAppActivity(opt: AppActivityOption): number {
+  // Returns actual APP_USAGE_DAYS (0–300 range) to match model training scale.
+  // Model was trained: higher days = lower risk = higher CNB score.
   switch (opt) {
     case "lt_1":
-      return 0.2;
+      return 15;   // < 1 month
     case "1_3":
-      return 0.6;
+      return 90;   // 1–3 months
     case "gt_3":
-      return 1.0;
+      return 250;  // > 3 months
   }
 }
 
 function mapCibilToExternalTrust(cibil: number): number {
-  // Treat higher CIBIL as LOWER risk for the model.
-  // We map CIBIL in [300, 900] to a 0–1 score where:
-  //  - 300  -> 1.0 (worst)
-  //  - 900  -> 0.0 (best)
+  // Map CIBIL [300, 900] to a 0–1 external trust score where:
+  //  - 300  -> 0.0 (worst creditworthiness)
+  //  - 900  -> 1.0 (best creditworthiness)
+  // The model was trained: higher EXT_SOURCE_1 = lower default risk = higher CNB score.
   const normalized = (cibil - 300) / 600;
-  const risk = Math.max(0, Math.min(1, normalized));
-  return 1 - risk;
+  return Math.max(0, Math.min(1, normalized));
 }
 
 export default function Page() {
@@ -218,7 +219,7 @@ export default function Page() {
                   </span>
                 </div>
                 <div className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
-                  Maps to a trusted credit signal ({mapCibilToExternalTrust(cibilScore).toFixed(2)})
+                  Trust signal: {mapCibilToExternalTrust(cibilScore).toFixed(2)} (0=poor, 1=excellent)
                 </div>
 
                 <input
@@ -318,9 +319,9 @@ export default function Page() {
                 value={appActivity}
                 onChange={setAppActivity}
                 options={[
-                  { value: "lt_1", label: "Less than a month", weight: 0.2 },
-                  { value: "1_3", label: "1-3 months", weight: 0.6 },
-                  { value: "gt_3", label: "Beyond 3 months", weight: 1.0 },
+                  { value: "lt_1", label: "Less than a month", weight: 15 },
+                  { value: "1_3", label: "1-3 months", weight: 90 },
+                  { value: "gt_3", label: "Beyond 3 months", weight: 250 },
                 ]}
               />
 
@@ -494,7 +495,7 @@ function SegmentedGroup<T extends string>({
             >
               <div className="text-xs font-semibold">{opt.label}</div>
               <div className="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">
-                Weight: {opt.weight.toFixed(1)}
+                Weight: {Number.isInteger(opt.weight) ? `${opt.weight} days` : opt.weight.toFixed(1)}
               </div>
             </button>
           );
